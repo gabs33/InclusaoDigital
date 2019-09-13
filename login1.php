@@ -3,8 +3,8 @@ session_start();
 
 $_SESSION = $_POST['email'] = $resultados['email'];
 $_SESSION = $_POST['entrar'] = $resultados['entrar'];
-$_SESSION = MD5 ($_POST['senha'] = $resultados['senha']);
-$connect = mysqli_connect('localhost','root', '', 'inclusao');
+// $_SESSION = MD5 ($_POST['senha'] = $resultados['senha']);
+// $connect = mysqli_connect('localhost','root', '', 'inclusao');
 //$resultados = mysql_fetch_array($query1);
 
 
@@ -14,19 +14,38 @@ $connect = mysqli_connect('localhost','root', '', 'inclusao');
 //$array = mysqli_fetch_array($select);
 //$logarray = $array['email'];
 
-	if (isset($entrar)){
+	require 'app/functions/bdq.php';
+	$_SESSION['email'] = $validate->email;
+	$_SESSION['senha'] = $validate->senha;	
 
-		$verifica = mysqli_query("SELECT * FROM usuarios WHERE usuario = $_POST['email'] AND senha = $_POST['senha']") or die ("erro ao selecionar");
-		if (mysqli_num_rows($verifica)<=0){
+	if($entrar){
+		$validate = validate([            
+            'email' => 'e',
+            'senha' => 's'
+		]);
+		$validate->senha = md5($validate->senha);
+		$usuarioEmail = DBReadOne("usuario","idUsuario","WHERE email = \"$validate->email\"");
+		$usuarioSenha = DBReadOne("usuario","senha","WHERE email = \"$validate->email\"");
+		if($usuarioEmail==NULL){
 			echo "<script>
-				alert('email ou senha incorretos.');
-				window.location.href='login.php';
-			</script>';";
-				die();
-		}else{
-				apd_set_session("email",$email);
-				header("Location:logado.php");
+						alert('Email incorreto');
+						window.location.href='login.php';
+					</script>';";
+		} else{
+			if($validate->senha!==$usuarioSenha){
+			echo "<script>
+					alert('Senha incorreta');
+					window.location.href='login.php';
+				</script>';";
 			}
-		}
 			
+			$_SESSION['id'] = $usuarioEmail;
+			$_SESSION['email'] = $validate->email;
+			$id = $usuarioEmail;
+			$_SESSION['nome'] = DBReadOne("usuario","nome","WHERE idUsuario = $id");
+			unset($_SESSION['email']);
+			unset($_SESSION['senha']);
+
+		}
+	}
 ?>
