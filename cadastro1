@@ -1,0 +1,33 @@
+<?php
+
+$email = $_POST['email'];
+$nome = $POST['nome'];
+$senha = MD5 ($_POST['senha']);
+$connect = mysql_connect ('localhost','root', '');
+$db = mysql_select_db('inclusao_digital');
+$query_select = "SELECT email FROM usuario WHERE email = '$email'";
+$select = mysql_query($query_select,$connect);
+$array = mysql_fetch_array($select);
+$logarray = $array['email'];
+
+	if ($email == "" || $email == null){
+		echo "oooooooi";
+	}else{
+		if($logarray == $email){
+
+			echo "<script language='javascript type=text/javascript">
+		alert('Esse email já existe');window.location.href='cadastro.php;'</script>
+		die();
+		}else{
+			$query = "INSERT INTO usuario (email,nome,senha) VALUES ('$email','$nome','$senha')";
+			$insert = mysql_query($query,$connect);
+			if($insert){
+				echo"<script language='javascript' type='text/javascript'>
+				alert('Usuário cadastrado com sucesso!');window.location.href='logado.php'</script>
+			}else{
+				echo<script language='javascript' type='text/javascript'>
+				alert('Não foi possivel cadastrar este email');window.location.href='cadastro.php'</script>
+			}
+		}
+	}
+	?>
